@@ -1,0 +1,11 @@
+<nav> 
+    <ul> 
+        <li><a routerLink="/home">Home</a></li> <!-- Link to the home page, always visible -->
+        <li *ngIf="!isLoggedIn"> <!-- Only show this item if the user is NOT logged in -->
+            <a routerLink="/login">Login</a> <!-- Link to the login page -->
+        </li>
+        <li *ngIf="isLoggedIn"> <!-- Only show this item if the user IS logged in -->
+            <a (click)="logout()">Logout</a> <!-- Link that triggers the logout function -->
+        </li>
+    </ul>
+</nav> 
