@@ -1,1 +1,28 @@
-<p>login works!</p>
+<div class="container">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Username Field -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" formControlName="username" placeholder="Enter username" />
+        <div *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.errors?.['required']" class="error">
+          Username is required
+        </div>
+      </div>
+  
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Enter password" />
+        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']" class="error">
+          Password is required
+        </div>
+        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['minlength']" class="error">
+          Password must be at least 6 characters long
+        </div>
+      </div>
+  
+      <!-- Submit Button -->
+      <button type="submit" [disabled]="!loginForm.valid">Login</button>
+    </form>
+  </div>
+  
