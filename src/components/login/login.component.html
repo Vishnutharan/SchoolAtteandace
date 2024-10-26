@@ -1,28 +1,43 @@
+<!-- login.component.html -->
 <div class="container">
   <form *ngIf="!isAuthenticated" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div>
+    <div class="form-group">
       <label for="username">Username:</label>
-      <input type="text" id="username" formControlName="username" placeholder="Enter username">
-      <div *ngIf="loginForm.get('username')?.errors?.['required']">
+      <input 
+        type="text" 
+        id="username" 
+        formControlName="username" 
+        placeholder="Enter username"
+      >
+      <div class="error-message" 
+           *ngIf="loginForm.get('username')?.errors?.['required'] && loginForm.get('username')?.touched">
         Username is required
       </div>
-      <div *ngIf="loginForm.get('username')?.errors?.['minlength']">
+      <div class="error-message" 
+           *ngIf="loginForm.get('username')?.errors?.['minlength'] && loginForm.get('username')?.touched">
         Username must be at least 3 characters long
       </div>
     </div>
 
-    <div>
+    <div class="form-group">
       <label for="password">Password:</label>
-      <input type="password" id="password" formControlName="password" placeholder="Enter password">
-      <div *ngIf="loginForm.get('password')?.errors?.['required']">
+      <input 
+        type="password" 
+        id="password" 
+        formControlName="password" 
+        placeholder="Enter password"
+      >
+      <div class="error-message" 
+           *ngIf="loginForm.get('password')?.errors?.['required'] && loginForm.get('password')?.touched">
         Password is required
       </div>
-      <div *ngIf="loginForm.get('password')?.errors?.['minlength']">
+      <div class="error-message" 
+           *ngIf="loginForm.get('password')?.errors?.['minlength'] && loginForm.get('password')?.touched">
         Password must be at least 6 characters long
       </div>
     </div>
 
     <button type="submit" [disabled]="!loginForm.valid">Login</button>
   </form>
-  <button *ngIf="isAuthenticated" (click)="onLogout()">Logout</button>
+  <button *ngIf="isAuthenticated" (click)="onLogout()" class="logout-btn">Logout</button>
 </div>

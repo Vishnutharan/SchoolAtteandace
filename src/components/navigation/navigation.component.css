@@ -1,58 +1,44 @@
-nav {
-    background-color: #256ec2;
-    padding: 1rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  }
-  
-  nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 20px;
-  }
-  
-  nav li {
-    position: relative;
-  }
-  
-  nav a {
-    color: #e8e9eb;
-    text-decoration: none;
-    font-size: 16px;
-    padding: 10px 15px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    display: block;
-  }
-  
-  nav a:hover {
-    background-color: #ce53af;
-    transform: translateY(-2px);
-  }
-  
-  nav a:active {
-    transform: translateY(0);
-  }
-  
-  nav a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
-    left: 50%;
-    background-color: #5346ca;
-    transition: all 0.3s ease;
-  }
-  
-  nav a:hover::after {
-    width: 100%;
-    left: 0;
-  }
-  
-  nav a.active {
-    background-color: #2196f3;
-    color: white;
-  }
+/* Styles for the navigation toolbar */
+mat-toolbar {
+  display: flex;
+  justify-content: space-between; /* Aligns children (span and buttons) on opposite ends */
+  align-items: center; /* Vertically centers the toolbar content */
+  background-color: #3f51b5; /* Elegant blue */
+  color: white; /* Text color */
+  padding: 0 20px; /* Space around the toolbar content */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Ensures the app name stands out */
+mat-toolbar span:first-child {
+  font-weight: bold;
+  font-size: 22px; /* Adjust size as needed */
+  font-family: 'Roboto', sans-serif; /* Elegant font */
+}
+
+/* Flex-grow for spacing elements */
+.flex-grow {
+  flex: 1;
+}
+
+/* Styling for buttons to make them more visible or styled differently */
+button[mat-button] {
+  margin-left: 10px; /* Space between buttons */
+  padding: 6px 12px; /* Padding for better button size */
+  background-color: #ff4081; /* Eye-catching pink */
+  color: white; /* Text color */
+  border: none; /* No border */
+  border-radius: 4px; /* Rounded corners */
+  font-family: 'Roboto', sans-serif; /* Consistent font */
+}
+
+/* Optional: Add more specific styles for hover, active states, etc. */
+button[mat-button]:hover {
+  background-color: #e91e63; /* Slightly darker pink on hover */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+/* Active state style for buttons */
+button[mat-button]:active {
+  background-color: #d81b60; /* Even darker pink when active */
+}

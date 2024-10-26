@@ -1,17 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navigation',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatToolbarModule, MatButtonModule],
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.css']
 })
 export class NavigationComponent {
-  isLoggedIn: boolean = false;  // logout
+  authService = inject(AuthService);
+  router = inject(Router);
 
-  logout() {
-    this.isLoggedIn = false;
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

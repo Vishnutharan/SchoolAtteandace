@@ -10,16 +10,15 @@ import { LoginRequest, AuthResponse } from '../models/auth.model';
 export class AuthService {
   private readonly API_URL = 'http://localhost:8082/api/auth';
   private readonly TOKEN_KEY = 'token';
-  private isAuthenticatedSource = new BehaviorSubject<boolean>(false);
-  isAuthenticated$ = this.isAuthenticatedSource.asObservable();
-
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
   constructor() {
+    // Only check auth on the browser platform
     if (isPlatformBrowser(this.platformId)) {
-      const auth = this.checkInitialAuth();
-      this.isAuthenticatedSource.next(auth);
+      this.isAuthenticatedSubject.next(this.checkInitialAuth());
     }
   }
 
@@ -30,7 +29,7 @@ export class AuthService {
         tap((response) => {
           if (response.token) {
             localStorage.setItem(this.TOKEN_KEY, response.token);
-            this.isAuthenticatedSource.next(true);
+            this.isAuthenticatedSubject.next(true);
           }
         }),
         catchError((error) => {
@@ -44,7 +43,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.TOKEN_KEY);
     }
-    this.isAuthenticatedSource.next(false);
+    this.isAuthenticatedSubject.next(false);
   }
 
   private checkInitialAuth(): boolean {
