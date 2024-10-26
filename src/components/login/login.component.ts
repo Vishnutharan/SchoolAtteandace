@@ -1,28 +1,37 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule], // Add HttpClientModule
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    HttpClientModule
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  authService = inject(AuthService);
-  router = inject(Router);
-  fb = inject(FormBuilder);
   loginForm: FormGroup;
-  hidePassword = true;
+  isAuthenticated: boolean = false;
 
-  constructor() {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private fb: FormBuilder
+  ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+    this.authService.isAuthenticated$.subscribe(authStatus => {
+      this.isAuthenticated = authStatus;
     });
   }
 
@@ -37,5 +46,9 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  onLogout(): void {
+    this.authService.logout();
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, throwError, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, throwError, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { LoginRequest, AuthResponse } from '../models/auth.model';
 
@@ -10,18 +10,16 @@ import { LoginRequest, AuthResponse } from '../models/auth.model';
 export class AuthService {
   private readonly API_URL = 'http://localhost:8082/api/auth';
   private readonly TOKEN_KEY = 'token';
-  isAuthenticated = false;
-  private http: HttpClient; // Dependency injection fix
+  private isAuthenticatedSource = new BehaviorSubject<boolean>(false);
+  isAuthenticated$ = this.isAuthenticatedSource.asObservable();
+
+  private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
-  constructor(http: HttpClient) { // Inject HttpClient
-    this.http = http;
-    this.initializeAuthStatus();
-  }
-
-  private initializeAuthStatus(): void {
+  constructor() {
     if (isPlatformBrowser(this.platformId)) {
-      this.isAuthenticated = this.checkInitialAuth();
+      const auth = this.checkInitialAuth();
+      this.isAuthenticatedSource.next(auth);
     }
   }
 
@@ -29,8 +27,16 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${this.API_URL}/login`, credentials)
       .pipe(
-        tap((response) => this.handleLoginResponse(response)),
-        catchError((error) => this.handleLoginError(error))
+        tap((response) => {
+          if (response.token) {
+            localStorage.setItem(this.TOKEN_KEY, response.token);
+            this.isAuthenticatedSource.next(true);
+          }
+        }),
+        catchError((error) => {
+          console.error('Login error:', error);
+          return throwError(() => new Error('Authentication failed'));
+        })
       );
   }
 
@@ -38,7 +44,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.TOKEN_KEY);
     }
-    this.isAuthenticated = false;
+    this.isAuthenticatedSource.next(false);
   }
 
   private checkInitialAuth(): boolean {
@@ -46,20 +52,9 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return isPlatformBrowser(this.platformId)
-      ? localStorage.getItem(this.TOKEN_KEY)
-      : null;
-  }
-
-  private handleLoginResponse(response: AuthResponse): void {
-    if (response.token) {
-      localStorage.setItem(this.TOKEN_KEY, response.token);
-      this.isAuthenticated = true;
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem(this.TOKEN_KEY);
     }
-  }
-
-  private handleLoginError(error: any): Observable<never> {
-    console.error('Login error:', error);
-    return throwError(() => new Error('Authentication failed'));
+    return null;
   }
 }
