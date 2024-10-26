@@ -1,6 +1,6 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, tap, catchError, throwError, map } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, throwError, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { LoginRequest, AuthResponse } from '../models/auth.model';
 
@@ -11,10 +11,15 @@ export class AuthService {
   private readonly API_URL = 'http://localhost:8082/api/auth';
   private readonly TOKEN_KEY = 'token';
   isAuthenticated = false;
-  private http = inject(HttpClient);
+  private http: HttpClient; // Dependency injection fix
   private platformId = inject(PLATFORM_ID);
 
-  constructor() {
+  constructor(http: HttpClient) { // Inject HttpClient
+    this.http = http;
+    this.initializeAuthStatus();
+  }
+
+  private initializeAuthStatus(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.isAuthenticated = this.checkInitialAuth();
     }
@@ -24,16 +29,8 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${this.API_URL}/login`, credentials)
       .pipe(
-        tap((response) => {
-          if (response.token) {
-            localStorage.setItem(this.TOKEN_KEY, response.token);
-            this.isAuthenticated = true;
-          }
-        }),
-        catchError((error) => {
-          console.error('Login error:', error);
-          return throwError(() => new Error('Authentication failed'));
-        })
+        tap((response) => this.handleLoginResponse(response)),
+        catchError((error) => this.handleLoginError(error))
       );
   }
 
@@ -49,9 +46,20 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem(this.TOKEN_KEY);
+    return isPlatformBrowser(this.platformId)
+      ? localStorage.getItem(this.TOKEN_KEY)
+      : null;
+  }
+
+  private handleLoginResponse(response: AuthResponse): void {
+    if (response.token) {
+      localStorage.setItem(this.TOKEN_KEY, response.token);
+      this.isAuthenticated = true;
     }
-    return null;
+  }
+
+  private handleLoginError(error: any): Observable<never> {
+    console.error('Login error:', error);
+    return throwError(() => new Error('Authentication failed'));
   }
 }
